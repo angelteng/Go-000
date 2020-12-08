@@ -12,11 +12,17 @@ type User struct {
 	Name string
 }
 
+var NOTFOUND = errors.New("not_found")
+
 // dao
 func getUser(name string) (*User, error) {
 	db, err := sql.Open("mysql", "root:123456@tcp(127.0.0.1:3306)/monitoring")
 	if err != nil {
-		return nil, errors.WithStack(err)
+		if err == sql.ErrNoRows {
+			return nil, errors.WithStack(NOTFOUND)
+		} else {
+			return nil, errors.WithStack(err)
+		}
 	}
 	defer db.Close()
 
@@ -39,7 +45,7 @@ func api() (int, *User) {
 	user, err := getUserByName("abc")
 	if err != nil {
 		// logger.Error("api_fail, err="+err.Error())
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, NOTFOUND) {
 			return 404, user
 		}
 

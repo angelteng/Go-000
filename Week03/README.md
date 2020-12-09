@@ -58,6 +58,15 @@
 3. 适合放请求的不能被变更的元数据，比如染色、trace
 4. 如果value是个map，当修改时，应该cow，然后创建新的context进行传递
 5. context超时覆盖
+```golang
+    func shrinkDeadline(ctx context.Context, timeout time.duration) time.Time{
+        timeoutTime := time.Now().Add(timeout)
+        if deadline,ok:= ctx.Deadline(); ok && timeoutTime.After(deadline){
+            return deadline
+        }
+        return timeoutTime
+    }
+```
 6. 重要：Context.WithCancel的cancel方法一定要调用，否则会造成泄露
 
 # Chan

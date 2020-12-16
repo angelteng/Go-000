@@ -23,13 +23,14 @@
 
 # Go的内存模型
 1. Happend Before：在一个 goroutine 中，读和写一定是按照程序中的顺序执行的。即编译器和处理器只有在不会改变这个 goroutine 的行为时才可能修改读和写的执行顺序。由于重排（CPU 重排、编译器重排），不同的goroutine 可能会看到不同的执行顺序。
-2. Cache Line & 内存屏障：现代 CPU 为了“抚平”内核、内存、硬盘之间的速度差异，搞出了各种策略，例如三级缓存等。每个线程的操作结果可能先缓存在自己内核的L1 L2cache，此时（还没刷到内存）别的内核线程是看不到的。因此，对于多线程的程序，所有的 CPU 都会提供“锁”支持，称之为 barrier，或者 fence。它要求：barrier 指令要求所有对内存的操作都必须要“扩散”到 memory 之后才能继续执行其他对 memory 的操作。
-3. 多个 goroutine 访问共享变量 v 时，它们必须使用同步事件来建立先行发生这一条件来保证读操作能看到需要的写操作。 
+2. 多个 goroutine 访问共享变量 v 时，它们必须使用同步事件来建立先行发生这一条件来保证读操作能看到需要的写操作。 
     1. 对变量v的零值初始化在内存模型中表现的与写操作相同。
     2. 对大于 single machine word 的变量的读写操作表现的像以不确定顺序对多个 single machine word的变量的操作。
-    3. 参考https://www.jianshu.com/p/5e44168f47a3
-4. 因此，多个goroutine要确保没有data race 需要保证：原子性（以singel machine word操作或者利用同步语义）、可见性（消除内存屏障）
-5. 关于底层的 memory reordering，可以挖一挖 cpu cacline、锁总线、mesi、memory barrier。
+    3. 参考 https://www.jianshu.com/p/5e44168f47a3
+3. 因此，多个goroutine要确保没有data race 需要保证：原子性（以singel machine word操作或者利用同步语义）、可见性（消除内存屏障）
+4. 关于底层的 memory reordering，可以挖一挖 cpu cacline、锁总线、mesi、memory barrier。
+5. 编译器重排、内存重排，(重排是指程序在实际运行时对内存的访问顺序和代码编写时的顺序不一致)，目的都是为了减少程序指令数，最大化提高CPU利用率。
+6. Memory Barrier: 现代 CPU 为了“抚平”内核、内存、硬盘之间的速度差异，搞出了各种策略，例如三级缓存等。每个线程的操作结果可能先缓存在自己内核的L1 L2cache，此时（还没刷到内存）别的内核线程是看不到的。因此，对于多线程的程序，所有的 CPU 都会提供“锁”支持，称之为 barrier，或者 fence。它要求：barrier 指令要求所有对内存的操作都必须要“扩散”到 memory 之后才能继续执行其他对 memory 的操作。 参考 https://cch123.github.io/ooo/，https://blog.csdn.net/qcrao/article/details/92759907 
    
 
 # SYNC 包

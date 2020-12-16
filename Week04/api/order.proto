@@ -1,0 +1,12 @@
+syntax = "proto3";
+package protocMessage;
+
+
+message CreateOrderRequest {
+ string name = 1;
+
+}
+
+message CreateOrderReply{
+    string message = 1;
+}
